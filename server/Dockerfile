@@ -7,11 +7,11 @@ FROM node:20-alpine AS builder
 WORKDIR /build
 
 # Copy root package files
-COPY ../package*.json ./
+COPY package*.json ./
 
 # Copy shared and server packages
-COPY ../shared ./shared
-COPY . ./server
+COPY shared ./shared
+COPY server ./server
 
 # Install all dependencies
 RUN npm ci
@@ -39,7 +39,7 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 
 # Copy root package files
-COPY ../package*.json ./
+COPY package*.json ./
 
 # Install only production dependencies
 RUN npm ci --only=production
@@ -60,8 +60,9 @@ COPY --from=builder /build/server/dist ./dist
 RUN mkdir -p /app/data && \
     chown -R nodejs:nodejs /app
 
-# Copy .env file if it exists
-COPY .env* ./
+# Note: .env files should be managed via environment variables in production
+# Uncomment below if you need to copy .env files
+# COPY --chown=nodejs:nodejs server/.env* ./
 
 # Switch to non-root user
 USER nodejs

@@ -7,11 +7,11 @@ FROM node:20-alpine AS builder
 WORKDIR /build
 
 # Copy root package files
-COPY ../package*.json ./
+COPY package*.json ./
 
 # Copy shared and client packages
-COPY ../shared ./shared
-COPY . ./client
+COPY shared ./shared
+COPY client ./client
 
 # Install all dependencies
 RUN npm ci
@@ -33,7 +33,7 @@ FROM nginx:alpine
 RUN apk add --no-cache wget
 
 # Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built static files
 COPY --from=builder /build/client/dist /usr/share/nginx/html
