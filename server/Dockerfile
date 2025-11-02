@@ -54,21 +54,33 @@ COPY client/package.json ./client/package.json
 # Install only production dependencies for all workspaces
 RUN npm ci --only=production
 
-# Copy Prisma schema and client from builder
-COPY --from=builder /build/server/prisma ./prisma
+# Copy Prisma schema, migrations, and client from builder
+COPY --from=builder /build/server/prisma ./server/prisma
 COPY --from=builder /build/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /build/node_modules/@prisma ./node_modules/@prisma
 
-# Copy built shared package
-COPY --from=builder /build/shared/dist ./node_modules/@gaming-hub/shared/dist
-COPY --from=builder /build/shared/package.json ./node_modules/@gaming-hub/shared/
+# Copy built shared package to workspace location (required for npm workspaces)
+COPY --from=builder /build/shared/dist ./shared/dist
+COPY --from=builder /build/shared/package.json ./shared/package.json
 
-# Copy built server application
-COPY --from=builder /build/server/dist ./dist
+# Copy built server application and package.json to workspace location
+COPY --from=builder /build/server/dist ./server/dist
+COPY --from=builder /build/server/package.json ./server/package.json
 
 # Create data directory for SQLite database
 RUN mkdir -p /app/data && \
     chown -R nodejs:nodejs /app
+
+# Create entrypoint script to run migrations before starting the server
+RUN printf '#!/bin/sh\n\
+set -e\n\
+echo "Running database migrations..."\n\
+cd /app/server && npx prisma migrate deploy\n\
+cd /app\n\
+echo "Starting server..."\n\
+exec node server/dist/index.js\n' > /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh && \
+    chown nodejs:nodejs /app/entrypoint.sh
 
 # Note: .env files should be managed via environment variables in production
 # Uncomment below if you need to copy .env files
@@ -84,5 +96,5 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
   CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start the server
-CMD ["node", "dist/index.js"]
+# Start the server with entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]
