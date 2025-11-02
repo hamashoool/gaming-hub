@@ -6,20 +6,20 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /build
 
-# Copy root package files
+# Copy root package files (needed for npm workspaces)
 COPY package*.json ./
 
-# Copy workspace package.json files (needed for npm workspaces)
-COPY shared/package.json ./shared/
-COPY client/package.json ./client/
-COPY server/package.json ./server/
+# Copy all workspace package.json files first (npm needs these before install)
+COPY shared/package.json ./shared/package.json
+COPY client/package.json ./client/package.json
+COPY server/package.json ./server/package.json
+
+# Install all dependencies (this must happen before copying source code)
+RUN npm ci
 
 # Copy shared and client source code
 COPY shared ./shared
 COPY client ./client
-
-# Install all dependencies
-RUN npm ci
 
 # Build shared package first
 WORKDIR /build/shared

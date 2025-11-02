@@ -6,15 +6,20 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /build
 
-# Copy root package files
+# Copy root package files (needed for npm workspaces)
 COPY package*.json ./
 
-# Copy shared and server packages
+# Copy all workspace package.json files first (npm needs these before install)
+COPY shared/package.json ./shared/package.json
+COPY server/package.json ./server/package.json
+COPY client/package.json ./client/package.json
+
+# Install all dependencies (this must happen before copying source code)
+RUN npm ci
+
+# Copy shared and server source code
 COPY shared ./shared
 COPY server ./server
-
-# Install all dependencies
-RUN npm ci
 
 # Build shared package first
 WORKDIR /build/shared
@@ -38,13 +43,13 @@ RUN addgroup -g 1001 -S nodejs && \
 
 WORKDIR /app
 
-# Copy root package files
+# Copy root package files (needed for npm workspaces)
 COPY package*.json ./
 
-# Copy workspace package.json files (needed for npm workspaces)
-COPY shared/package.json ./shared/
-COPY server/package.json ./server/
-COPY client/package.json ./client/
+# Copy all workspace package.json files (npm needs these before install)
+COPY shared/package.json ./shared/package.json
+COPY server/package.json ./server/package.json
+COPY client/package.json ./client/package.json
 
 # Install only production dependencies for all workspaces
 RUN npm ci --only=production
