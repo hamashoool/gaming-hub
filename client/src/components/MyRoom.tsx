@@ -71,7 +71,7 @@ export const MyRoom: React.FC = () => {
     socket.emit(SocketEvents.CREATE_PERMANENT_ROOM, payload);
 
     socket.once(SocketEvents.ROOM_CREATED, ({ room, playerId }: any) => {
-      gameSounds.create.play().catch(() => {});
+      gameSounds.playJoin();
       setMyRoom(room);
       setMyPlayerId(playerId);
 

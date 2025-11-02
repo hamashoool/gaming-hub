@@ -87,7 +87,7 @@ export const PublicRoomsList: React.FC<PublicRoomsListProps> = ({ playerName }) 
     socket.emit(SocketEvents.JOIN_ROOM, payload);
 
     socket.once(SocketEvents.ROOM_JOINED, ({ room, playerId }: any) => {
-      gameSounds.join.play().catch(() => {});
+      gameSounds.playJoin();
       setRoom(room);
       setPlayerId(playerId);
       addRecentRoom(roomId);

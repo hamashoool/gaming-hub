@@ -56,8 +56,8 @@ RUN npm ci --only=production
 
 # Copy Prisma schema and client from builder
 COPY --from=builder /build/server/prisma ./prisma
-COPY --from=builder /build/server/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /build/server/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /build/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /build/node_modules/@prisma ./node_modules/@prisma
 
 # Copy built shared package
 COPY --from=builder /build/shared/dist ./node_modules/@gaming-hub/shared/dist

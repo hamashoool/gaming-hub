@@ -67,7 +67,7 @@ export const Home: React.FC = () => {
     socket.emit(SocketEvents.CREATE_ROOM, payload);
 
     socket.once(SocketEvents.ROOM_CREATED, ({ room, playerId }: any) => {
-      gameSounds.create.play().catch(() => {});
+      gameSounds.playJoin();
       setPlayerId(playerId);
       setRoom(room);
       addRecentRoom(room.id);
@@ -101,7 +101,7 @@ export const Home: React.FC = () => {
     socket.emit(SocketEvents.JOIN_ROOM, payload);
 
     socket.once(SocketEvents.ROOM_JOINED, ({ room, playerId }: any) => {
-      gameSounds.join.play().catch(() => {});
+      gameSounds.playJoin();
       setPlayerId(playerId);
       setRoom(room);
       addRecentRoom(room.id);
