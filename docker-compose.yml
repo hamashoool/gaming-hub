@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   server:
-    build:
-      context: .
-      dockerfile: server/Dockerfile
+    image: hamashool/gaming-hub-server:latest
     container_name: gaming-hub-server
     ports:
       - "${SERVER_PORT:-3001}:3001"
@@ -29,11 +27,7 @@ services:
       - gaming-hub
 
   client:
-    build:
-      context: .
-      dockerfile: client/Dockerfile
-      args:
-        - VITE_API_URL=${VITE_API_URL:-http://gaming-hub-server:3001}
+    image: hamashool/gaming-hub-client:latest
     container_name: gaming-hub-client
     ports:
       - "${CLIENT_PORT:-4401}:80"
