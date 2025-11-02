@@ -41,7 +41,12 @@ WORKDIR /app
 # Copy root package files
 COPY package*.json ./
 
-# Install only production dependencies
+# Copy workspace package.json files (needed for npm workspaces)
+COPY shared/package.json ./shared/
+COPY server/package.json ./server/
+COPY client/package.json ./client/
+
+# Install only production dependencies for all workspaces
 RUN npm ci --only=production
 
 # Copy Prisma schema and client from builder

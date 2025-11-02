@@ -9,7 +9,12 @@ WORKDIR /build
 # Copy root package files
 COPY package*.json ./
 
-# Copy shared and client packages
+# Copy workspace package.json files (needed for npm workspaces)
+COPY shared/package.json ./shared/
+COPY client/package.json ./client/
+COPY server/package.json ./server/
+
+# Copy shared and client source code
 COPY shared ./shared
 COPY client ./client
 
